@@ -9,9 +9,11 @@ internal static class SoundBank
 {
     private static AudioSource source;
     private static AudioClip hitClip;
+    private static AudioClip headshotClip;
     private static AudioClip killClip;
     private static string baseSoundsDir;
     private static string cachedHitName;
+    private static string cachedHeadshotName;
     private static string cachedKillName;
 
     private static void Ensure()
@@ -40,12 +42,19 @@ internal static class SoundBank
     private static void LoadClips()
     {
         var hitName = Settings.HitSoundFile.Value?.Trim() ?? "";
+        var hitNameHeadshot = Settings.HeadshotSoundFile.Value?.Trim() ?? "";
         var killName = Settings.KillSoundFile.Value?.Trim() ?? "";
 
         if (!string.Equals(hitName, cachedHitName, StringComparison.OrdinalIgnoreCase))
         {
             hitClip = TryLoadWavSafe(Path.Combine(baseSoundsDir, hitName));
             cachedHitName = hitName;
+        }
+        
+        if (!string.Equals(hitNameHeadshot, cachedHeadshotName, StringComparison.OrdinalIgnoreCase))
+        {
+            headshotClip = TryLoadWavSafe(Path.Combine(baseSoundsDir, hitNameHeadshot));
+            cachedHeadshotName = hitNameHeadshot;
         }
 
         if (!string.Equals(killName, cachedKillName, StringComparison.OrdinalIgnoreCase))
@@ -62,6 +71,15 @@ internal static class SoundBank
         if (hitClip == null) return;
         source.volume = Settings.MasterVolume.Value * Settings.HitSoundVolume.Value;
         source.PlayOneShot(hitClip);
+    }
+    
+    public static void PlayHeadshot()
+    {
+        Ensure();
+        if (!Settings.PlaySoundOnHeadshot.Value) return;
+        if (headshotClip == null) return;
+        source.volume = Settings.MasterVolume.Value * Settings.HeadshotSoundVolume.Value;
+        source.PlayOneShot(headshotClip);
     }
 
     public static void PlayKill()

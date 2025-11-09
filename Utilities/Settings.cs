@@ -73,10 +73,13 @@ internal static class Settings
 
     public static ConfigEntry<float> MasterVolume { get; private set; }
     public static ConfigEntry<bool> PlaySoundOnHit { get; private set; }
+    public static ConfigEntry<bool> PlaySoundOnHeadshot { get; private set; }
     public static ConfigEntry<bool> PlaySoundOnKill { get; private set; }
     public static ConfigEntry<float> HitSoundVolume { get; private set; }
+    public static ConfigEntry<float> HeadshotSoundVolume { get; private set; }
     public static ConfigEntry<float> KillSoundVolume { get; private set; }
     public static ConfigEntry<string> HitSoundFile { get; private set; }
+    public static ConfigEntry<string> HeadshotSoundFile { get; private set; }
     public static ConfigEntry<string> KillSoundFile { get; private set; }
 
     #endregion
@@ -165,16 +168,25 @@ internal static class Settings
         ConfigEntries.Add(PlaySoundOnHit = config.Bind(CategoryAudio, "Play Sound On Hit", true,
             new ConfigDescription("Play a sound on hit.", null, new ConfigurationManagerAttributes { Order = ord-- })));
         
+        ConfigEntries.Add(PlaySoundOnHeadshot = config.Bind(CategoryAudio, "Play Sound On Headshot", true,
+            new ConfigDescription("Play a sound on headshot.", null, new ConfigurationManagerAttributes { Order = ord-- })));
+        
         ConfigEntries.Add(PlaySoundOnKill = config.Bind(CategoryAudio, "Play Sound On Kill", true,
             new ConfigDescription("Play a sound on kill.", null, new ConfigurationManagerAttributes { Order = ord-- })));
 
         ConfigEntries.Add(HitSoundVolume = config.Bind(CategoryAudio, "Hit Sound Volume", 0.6f,
             new ConfigDescription("Volume for hit sound.", range01, new ConfigurationManagerAttributes { Order = ord-- })));
         
+        ConfigEntries.Add(HeadshotSoundVolume = config.Bind(CategoryAudio, "Headshot Sound Volume", 0.6f,
+            new ConfigDescription("Volume for headshot sound.", range01, new ConfigurationManagerAttributes { Order = ord-- })));
+        
         ConfigEntries.Add(KillSoundVolume = config.Bind(CategoryAudio, "Kill Sound Volume", 0.6f,
             new ConfigDescription("Volume for kill sound.", range01, new ConfigurationManagerAttributes { Order = ord-- })));
         
         ConfigEntries.Add(HitSoundFile = config.Bind(CategoryAudio, "Hit Sound File Name", "Hitmarker1.wav",
+            new ConfigDescription("WAV file in the Sounds folder.", null, new ConfigurationManagerAttributes { Order = ord-- })));
+        
+        ConfigEntries.Add(HeadshotSoundFile = config.Bind(CategoryAudio, "Headshot Sound File Name", "Hitmarker2.wav",
             new ConfigDescription("WAV file in the Sounds folder.", null, new ConfigurationManagerAttributes { Order = ord-- })));
         
         ConfigEntries.Add(KillSoundFile = config.Bind(CategoryAudio, "Kill Sound File Name", "Kill.wav",
@@ -186,9 +198,11 @@ internal static class Settings
         Font = Resources.GetBuiltinResource<Font>("Arial.ttf");
 
         HitSoundFile.Subscribe(_ => SoundBank.Reload());
+        HeadshotSoundFile.Subscribe(_ => SoundBank.Reload());
         KillSoundFile.Subscribe(_ => SoundBank.Reload());
         MasterVolume.Subscribe(_ => SoundBank.Reload());
         HitSoundVolume.Subscribe(_ => SoundBank.Reload());
+        HeadshotSoundVolume.Subscribe(_ => SoundBank.Reload());
         KillSoundVolume.Subscribe(_ => SoundBank.Reload());
     }
 }

@@ -30,12 +30,14 @@ public class HitmarkerController : MonoBehaviour
     private void OnEnable()
     {
         EventBus.OnDamage += OnDamage;
+        EventBus.OnHeadshot += OnHeadshot;
         EventBus.OnKill   += OnKill;
     }
 
     private void OnDisable()
     {
         EventBus.OnDamage -= OnDamage;
+        EventBus.OnHeadshot -= OnHeadshot;
         EventBus.OnKill   -= OnKill;
     }
 
@@ -53,6 +55,13 @@ public class HitmarkerController : MonoBehaviour
         if (!e.IsLocalAttacker) return;
         hits.Add(new HitEntry { Evt = e });
         SoundBank.PlayHit();
+    }
+    
+    private void OnHeadshot(DamageEvent e)
+    {
+        if (!e.IsLocalAttacker) return;
+        hits.Add(new HitEntry { Evt = e });
+        SoundBank.PlayHeadshot();
     }
 
     private void OnKill(DamageEvent e)
