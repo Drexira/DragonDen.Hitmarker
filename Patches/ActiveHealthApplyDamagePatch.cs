@@ -117,11 +117,12 @@ internal class ActiveHealthApplyDamagePatch : ModulePatch
                 $"Hit -> {e.VictimName} [{e.BodyPart}] dmg:{e.DamageAmount:0.##} body:{e.BodyDamage:0.##} armor:{e.ArmorDamage:0.##} " +
                 $"armorHit:{e.IsArmorHit} ric:{e.Ricochet} blk:{e.Blocked} ({e.WeaponLabel} / {e.AmmoName}) dist:{e.DistanceMeters:0}m");
 
-        if (e.VictimIsDead) 
-            EventBus.RaiseKill(e);
-        else if (e.IsHeadshot)
+        if (e.IsHeadshot)
             EventBus.RaiseHeadshot(e);
         else
             EventBus.RaiseDamage(e);
+
+        if (e.VictimIsDead) 
+            EventBus.RaiseKill(e);
     }
 }
