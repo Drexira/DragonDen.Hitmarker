@@ -97,7 +97,7 @@ internal static class SoundBank
         {
             if (string.IsNullOrEmpty(path)) return null;
             if (!File.Exists(path)) return null;
-            return LoadPcmWav(path);
+            return LoadWav(path);
         }
         catch
         {
@@ -105,76 +105,24 @@ internal static class SoundBank
         }
     }
 
-    private static AudioClip LoadPcmWav(string path)
+    private static AudioClip LoadWav(string path)
     {
-        using var fs = File.OpenRead(path);
-        using var br = new BinaryReader(fs);
+        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path)) return null;
 
-        var riff = new string(br.ReadChars(4));
-        if (riff != "RIFF") return null;
-        br.ReadInt32();
-        var wave = new string(br.ReadChars(4));
-        if (wave != "WAVE") return null;
+        var ext = Path.GetExtension(path)?.ToLowerInvariant();
+        var type = ext == ".ogg" ? AudioType.OGGVORBIS : AudioType.WAV;
+        var uri = path.StartsWith("http", StringComparison.OrdinalIgnoreCase)
+            ? path
+            : "file://" + path.Replace("\\", "/");
 
-        var channels = 0;
-        var sampleRate = 0;
-        var bitsPerSample = 0;
-        byte[] pcm = null;
+        using var req = UnityEngine.Networking.UnityWebRequestMultimedia.GetAudioClip(uri, type);
+        var op = req.SendWebRequest();
+        while (!op.isDone) {}
 
-        while (br.BaseStream.Position < br.BaseStream.Length)
-        {
-            var id = new string(br.ReadChars(4));
-            var size = br.ReadInt32();
+        if (req.result != UnityEngine.Networking.UnityWebRequest.Result.Success) return null;
 
-            if (id == "fmt ")
-            {
-                var audioFormat = br.ReadInt16();
-                channels = br.ReadInt16();
-                sampleRate = br.ReadInt32();
-                br.ReadInt32();
-                br.ReadInt16();
-                bitsPerSample = br.ReadInt16();
-                var remain = size - 16;
-                if (remain > 0) br.ReadBytes(remain);
-                if (audioFormat != 1) return null;
-            }
-            else if (id == "data")
-            {
-                pcm = br.ReadBytes(size);
-            }
-            else
-            {
-                br.ReadBytes(size);
-            }
-        }
-
-        if (pcm == null) return null;
-        if (channels < 1) return null;
-        if (sampleRate < 8000) return null;
-        if (bitsPerSample != 16 && bitsPerSample != 8) return null;
-
-        float[] samples;
-
-        if (bitsPerSample == 16)
-        {
-            var count = pcm.Length / 2;
-            samples = new float[count];
-            for (var i = 0; i < count; i++)
-            {
-                var s = BitConverter.ToInt16(pcm, i * 2);
-                samples[i] = s / 32768f;
-            }
-        }
-        else
-        {
-            var count = pcm.Length;
-            samples = new float[count];
-            for (var i = 0; i < count; i++) samples[i] = (pcm[i] - 128) / 128f;
-        }
-
-        var ch = Mathf.Clamp(channels, 1, 2);
-        var clip = AudioClip.Create(Path.GetFileNameWithoutExtension(path), samples.Length / ch, ch, sampleRate, false);
-        clip.SetData(samples, 0);
+        var clip = UnityEngine.Networking.DownloadHandlerAudioClip.GetContent(req);
+        if (clip != null) clip.name = Path.GetFileNameWithoutExtension(path);
         return clip;
     }
 }
