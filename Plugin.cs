@@ -7,7 +7,7 @@ using UnityEngine;
 namespace DragonDen.Hitmarker;
 
 [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
-[BepInDependency("com.SPT.custom", "4.0")]
+[BepInDependency("com.SPT.custom", "4.1.3")]
 public class Plugin : BaseUnityPlugin
 {
     public new static ManualLogSource Logger { get; set; }

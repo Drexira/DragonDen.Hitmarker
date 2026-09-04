@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using BepInEx;
 using BepInEx.Configuration;
+using EFT.Communications;
 using UnityEngine;
 
 namespace DragonDen.Hitmarker.Utilities;
@@ -215,7 +216,7 @@ internal static class SettingExtensions
         {
             onChange(configEntry.Value);
             if (notification)
-                NotificationManagerClass.DisplayMessageNotification($"[Hitmarker] {configEntry.Definition.Key} set to {configEntry.Value}");
+                NotificationManager.DisplayMessageNotification($"[Hitmarker] {configEntry.Definition.Key} set to {configEntry.Value}");
         };
     }
 
