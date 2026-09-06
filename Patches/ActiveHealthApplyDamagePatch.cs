@@ -3,6 +3,7 @@ using Comfort.Common;
 using DragonDen.Hitmarker.Models;
 using DragonDen.Hitmarker.Utilities;
 using EFT;
+using EFT.Ballistics;
 using EFT.InventoryLogic;
 using EFT.HealthSystem;
 using UnityEngine;
@@ -18,7 +19,7 @@ internal class ActiveHealthApplyDamagePatch : ModulePatch
             "ApplyDamage",
             BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
             null,
-            new[] { typeof(EBodyPart), typeof(float), typeof(DamageInfoStruct) },
+            new[] { typeof(EBodyPart), typeof(float), typeof(DamageInfo) },
             null
         );
     }
@@ -27,7 +28,7 @@ internal class ActiveHealthApplyDamagePatch : ModulePatch
     {
         if (weaponItem is Weapon w)
         {
-            var factory = Singleton<ItemFactoryClass>.Instance;
+            var factory = Singleton<ItemFactory>.Instance;
             return factory.BriefItemName(w, w.ShortName.Localized());
         }
         return string.Empty;
@@ -36,14 +37,14 @@ internal class ActiveHealthApplyDamagePatch : ModulePatch
     static string ResolveAmmoName(string ammoTpl)
     {
         if (string.IsNullOrEmpty(ammoTpl)) return string.Empty;
-        var db = Singleton<ItemFactoryClass>.Instance.ItemTemplates;
+        var db = Singleton<ItemFactory>.Instance.ItemTemplates;
         if (db.TryGetValue((MongoID)ammoTpl, out var tpl))
             return tpl.ShortNameLocalizationKey.Localized();
         return ammoTpl;
     }
 
     [PatchPostfix]
-    private static void Postfix(ActiveHealthController __instance, EBodyPart __0, float __1, DamageInfoStruct __2)
+    private static void Postfix(ActiveHealthController __instance, EBodyPart __0, float __1, DamageInfo __2)
     {
         var bodyPart = __0;
         var damageArg = __1;
